@@ -17,15 +17,16 @@ pipeline {
                 sh '''
                     echo "Deploying Nginx to EKS..."
                     kubectl apply -f nginx-deployment.yaml
-                    kubectl apply -f nginx-service.yaml
+                    
                 '''
             }
         }
-
+        
+// kubectl apply -f nginx-service.yaml
+      // sh 'kubectl get svc nginx-service'  
         stage('Verify Deployment') {
             steps {
                 sh 'kubectl get pods'
-                sh 'kubectl get svc nginx-service'
             }
         }
     }
