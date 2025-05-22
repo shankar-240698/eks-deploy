@@ -11,6 +11,16 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/shankar-240698/eks-deploy.git'
             }
         }
+        stage('Build & Archive Artifacts') {
+            steps {
+                sh '''
+              mkdir -p build
+              cp index.html about.html -r css build/
+              zip -r build.zip build
+            '''
+            archiveArtifacts artifacts: 'build.zip', fingerprint: true
+  }
+}
 
         stage('Build Docker Image') {
             steps {
