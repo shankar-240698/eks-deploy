@@ -9,7 +9,7 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git 'https://github.com/shankar-240698/eks-deploy.git'
+        git branch: 'main', 'https://github.com/shankar-240698/eks-deploy.git'
       }
     }
 
