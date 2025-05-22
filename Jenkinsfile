@@ -9,7 +9,7 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git 'https://github.com/your-org/your-basic-app.git'
+        git 'https://github.com/shankar-240698/eks-deploy'
       }
     }
 
