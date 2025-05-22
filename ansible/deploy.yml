@@ -1,0 +1,30 @@
+- name: Deploy Docker container
+  hosts: webservers
+  become: yes
+  vars:
+    docker_image: "{{ docker_image }}"
+  tasks:
+    - name: Ensure Docker is installed
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Pull Docker image from Docker Hub
+      docker_image:
+        name: "{{ docker_image }}"
+        source: pull
+
+    - name: Stop and remove existing container (if exists)
+      docker_container:
+        name: htmlpage
+        state: absent
+        force_kill: true
+
+    - name: Run Docker container
+      docker_container:
+        name: htmlpage
+        image: "{{ docker_image }}"
+        ports:
+          - "80:80"
+        state: started
