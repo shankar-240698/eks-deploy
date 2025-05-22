@@ -13,7 +13,7 @@ pipeline {
     }
     stage('Deploy to EKS') {
       steps {
-        sh 'ansible-playbook -i inventory deploy.yml'
+        sh 'ansible-playbook -i inventory.yml deploy.yml'
       }
     }
   }
