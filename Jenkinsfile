@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://your-repo-url.git' // Replace with your Git repo
+                git branch: "main" , 'https://github.com/shankar-240698/eks-deploy.git' // Replace with your Git repo
             }
         }
 
