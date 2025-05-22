@@ -1,19 +1,39 @@
 pipeline {
   agent any
-
   environment {
+    DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')  // Jenkins credentials id
+    DOCKER_IMAGE_NAME = "your-dockerhub-username/your-app"
     KUBECONFIG = '/home/jenkins/.kube/config'
   }
 
   stages {
     stage('Checkout') {
       steps {
-        git 'https://github.com/shankar-240698/eks-deploy.git'
+        git 'https://github.com/your-org/your-basic-app.git'
       }
     }
-    stage('Deploy to EKS') {
+
+    stage('Build Docker Image') {
       steps {
-        sh 'ansible-playbook -i inventory.yml deploy.yml'
+        script {
+          dockerImage = docker.build("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}")
+        }
+      }
+    }
+
+    stage('Push to Docker Hub') {
+      steps {
+        script {
+          docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-creds') {
+            dockerImage.push()
+          }
+        }
+      }
+    }
+
+    stage('Deploy with Ansible') {
+      steps {
+        sh 'ansible-playbook -i inventory/hosts deploy.yml'
       }
     }
   }
