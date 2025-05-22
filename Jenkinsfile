@@ -1,40 +1,39 @@
 pipeline {
-  agent any
-  environment {
-    DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')  // Jenkins credentials id
-    DOCKER_IMAGE_NAME = "msshankar/htmlpage"
-    KUBECONFIG = '/home/jenkins/.kube/config'
-  }
+    agent any
 
-  stages {
-    stage('Checkout') {
-      steps {
-        git branch: 'main', 'https://github.com/shankar-240698/eks-deploy.git'
-      }
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
     }
-  }
-    stage('Build Docker Image') {
-      steps {
-        script {
-          dockerImage = docker.build("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}")
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/shankar-240698/eks-deploy.git'
+            }
         }
-      }
-    }
 
-    stage('Push to Docker Hub') {
-      steps {
-        script {
-          docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-creds') {
-            dockerImage.push()
-          }
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t myimage:latest .'
+            }
         }
-      }
-    }
 
-    stage('Deploy with Ansible') {
-      steps {
-        sh 'ansible-playbook -i inventory.yml deploy.yml'
-      }
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh '''
+                        echo "$PASSWORD" | docker login -u "$USERNAME" --password-stdin
+                        docker tag myimage:latest $USERNAME/myimage:latest
+                        docker push $USERNAME/myimage:latest
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy with Ansible') {
+            steps {
+                sh 'ansible-playbook -i inventory.ini deploy.yml'
+            }
+        }
     }
-  }
 }
