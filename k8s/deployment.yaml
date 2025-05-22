@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: htmlpage-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: msshankar/htmlpage
+  template:
+    metadata:
+      labels:
+        app: msshankar/htmlpage
+    spec:
+      containers:
+      - name: htmlpage
+        image: msshankar/htmlpage:latest
+        ports:
+        - containerPort: 3000
