@@ -1,11 +1,6 @@
-- name: Deploy app to EKS
+- name: Deploy app to EKS cluster
   hosts: localhost
   tasks:
-    - name: Update image in deployment manifest
-      replace:
-        path: k8s/deployment.yaml
-        regexp: 'image: msshankar/htmlpage:.*'
-        replace: "image: msshankar/htmlpage:{{ lookup('env','BUILD_NUMBER') }}"
-
-    - name: Apply deployment manifest
-      shell: kubectl apply -f k8s/deployment.yaml --kubeconfig=/home/jenkins/.kube/config
+    - name: Apply Kubernetes manifests
+      shell: |
+        kubectl apply -f k8s/deployment.yaml --kubeconfig=/home/jenkins/.kube/config
