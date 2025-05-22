@@ -2,14 +2,14 @@ pipeline {
   agent any
   environment {
     DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')  // Jenkins credentials id
-    DOCKER_IMAGE_NAME = "your-dockerhub-username/your-app"
+    DOCKER_IMAGE_NAME = "msshankar/htmlpage"
     KUBECONFIG = '/home/jenkins/.kube/config'
   }
 
   stages {
     stage('Checkout') {
       steps {
-        git 'https://github.com/your-org/your-basic-app.git'
+        git 'https://github.com/shankar-240698/eks-deploy.git'
       }
     }
 
@@ -33,7 +33,7 @@ pipeline {
 
     stage('Deploy with Ansible') {
       steps {
-        sh 'ansible-playbook -i inventory/hosts deploy.yml'
+        sh 'ansible-playbook -i inventory.yml deploy.yml'
       }
     }
   }
