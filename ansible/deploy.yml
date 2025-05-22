@@ -1,30 +1,11 @@
-- name: Deploy Docker container
-  hosts: webservers
-  become: yes
-  vars:
-    docker_image: "{{ docker_image }}"
+- name: Deploy app to EKS
+  hosts: localhost
   tasks:
-    - name: Ensure Docker is installed
-      apt:
-        name: docker.io
-        state: present
-        update_cache: yes
+    - name: Update image in deployment manifest
+      replace:
+        path: k8s/deployment.yaml
+        regexp: 'image: msshankar/htmlpage:.*'
+        replace: "image: msshankar/htmlpage:{{ lookup('env','BUILD_NUMBER') }}"
 
-    - name: Pull Docker image from Docker Hub
-      docker_image:
-        name: "{{ docker_image }}"
-        source: pull
-
-    - name: Stop and remove existing container (if exists)
-      docker_container:
-        name: htmlpage
-        state: absent
-        force_kill: true
-
-    - name: Run Docker container
-      docker_container:
-        name: htmlpage
-        image: "{{ docker_image }}"
-        ports:
-          - "80:80"
-        state: started
+    - name: Apply deployment manifest
+      shell: kubectl apply -f k8s/deployment.yaml --kubeconfig=/home/jenkins/.kube/config
