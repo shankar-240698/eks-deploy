@@ -1,6 +1,32 @@
-- name: Deploy app to EKS cluster
+- name: Deploy app to Kubernetes
   hosts: localhost
+  vars:
+    kubeconfig_path: "/home/jenkins/.kube/config"
+    docker_image: "msshankar/htmlpage:{{ lookup('env','BUILD_NUMBER') }}"
   tasks:
-    - name: Apply Kubernetes manifests
-      shell: |
-        kubectl apply -f k8s/deployment.yaml --kubeconfig=/home/jenkins/.kube/config
+    - name: Deploy/update k8s deployment
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}"
+        state: present
+        definition:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: htmlpage
+            labels:
+              app: htmlpage
+          spec:
+            replicas: 2
+            selector:
+              matchLabels:
+                app: htmlpage
+            template:
+              metadata:
+                labels:
+                  app: htmlpage
+              spec:
+                containers:
+                - name: htmlpage
+                  image: "{{ docker_image }}"
+                  ports:
+                  - containerPort: 3000
